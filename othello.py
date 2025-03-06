@@ -166,14 +166,66 @@ def minimax_move(board, player, depth=6):
             best_move = move
     return best_move
 
+
+def alphabeta_move(board, player, depth=7):
+    game = OthelloGame()
+    game.board = deepcopy(board)
+    
+    def max_value(depth, alpha, beta):
+        if depth == 0 or game.is_terminal():
+            return evaluate_board(game.board, player)
+        
+        max_eval = -math.inf
+        for move in game.get_valid_moves(player):
+            child = OthelloGame()
+            child.board = deepcopy(game.board)
+            child.make_move(player, move)
+            eval = min_value(depth-1, alpha, beta)
+            max_eval = max(max_eval, eval)
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break
+        return max_eval
+    
+    def min_value(depth, alpha, beta):
+        opponent = 'O' if player == 'X' else 'X'
+        if depth == 0 or game.is_terminal():
+            return evaluate_board(game.board, player)
+        
+        min_eval = math.inf
+        for move in game.get_valid_moves(opponent):
+            child = OthelloGame()
+            child.board = deepcopy(game.board)
+            child.make_move(opponent, move)
+            eval = max_value(depth-1, alpha, beta)
+            min_eval = min(min_eval, eval)
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break
+        return min_eval
+    
+    best_move = None
+    best_value = -math.inf
+    for move in game.get_valid_moves(player):
+        child = OthelloGame()
+        child.board = deepcopy(game.board)
+        child.make_move(player, move)
+        value = min_value(depth-1, -math.inf, math.inf)
+        if value > best_value:
+            best_value = value
+            best_move = move
+    
+    return best_move
+
 # ================== INTERFACE ================== 
 
 def human_vs_ai():
     game = OthelloGame()
-    algorithms = {'1': minimax_move}
+    algorithms = {'1': minimax_move, '2': alphabeta_move}
     
-    print("Choisir l'algorithme :\n1. Minimax (6 plis)")
-    choice = input("Votre choix (1): ").strip()
+    print("Choisir l'algorithme :\n1. Minimax (6 plis)\n2. Alpha-Beta (7 plis)")
+    choice = input("Votre choix (1 ou 2): ").strip()
+    ai_algorithm = algorithms.get(choice, minimax_move)
     
     while not game.is_terminal():
         game.print_board()
@@ -200,7 +252,7 @@ def human_vs_ai():
         
         else:
             print("L'IA réfléchit...")
-            move = minimax_move(game.board, 'O')
+            move = ai_algorithm(game.board, 'O')
             game.make_move('O', move)
             game.current_player = 'X'
 
@@ -212,4 +264,3 @@ def human_vs_ai():
 
 if __name__ == "__main__":
     human_vs_ai()
-    
