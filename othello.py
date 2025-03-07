@@ -217,15 +217,42 @@ def alphabeta_move(board, player, depth=7):
     
     return best_move
 
+def monte_carlo_move(board, player, simulations=10000):
+    valid_moves = [(i, j) for i in range(8) for j in range(8) if board[i][j] == ' ']
+    if not valid_moves:
+        return None
+    
+    win_counts = {move: 0 for move in valid_moves}
+    
+    for move in valid_moves:
+        for _ in range(simulations):
+            sim_game = OthelloGame()
+            sim_game.board = deepcopy(board)
+            sim_game.make_move(player, move)
+            current_player = 'O' if player == 'X' else 'X'
+            
+            while not sim_game.is_terminal():
+                random_moves = sim_game.get_valid_moves(current_player)
+                if random_moves:
+                    sim_game.make_move(current_player, random.choice(random_moves))
+                current_player = 'O' if current_player == 'X' else 'X'
+            
+            x_score, o_score = sim_game.get_score()
+            if (player == 'X' and x_score > o_score) or (player == 'O' and o_score > x_score):
+                win_counts[move] += 1
+    
+    best_move = max(win_counts, key=win_counts.get)
+    return best_move
+
 # ================== INTERFACE ================== 
 
 def human_vs_ai():
     game = OthelloGame()
-    algorithms = {'1': minimax_move, '2': alphabeta_move}
+    algorithms = {'1': minimax_move, '2': alphabeta_move, '3': monte_carlo_move}
     
-    print("Choisir l'algorithme :\n1. Minimax (6 plis)\n2. Alpha-Beta (7 plis)")
-    choice = input("Votre choix (1 ou 2): ").strip()
-    ai_algorithm = algorithms.get(choice, minimax_move)
+    print("Choisir l'algorithme :\n1. Minimax (6 plis)\n2. Alpha-Beta (7 plis)\n3. Monte-Carlo (10 000 simulations)")
+    choice = input("Votre choix (1, 2 ou 3): ").strip()
+    ai_algorithm = algorithms.get(choice)
     
     while not game.is_terminal():
         game.print_board()
