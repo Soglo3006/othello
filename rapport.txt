@@ -1,0 +1,59 @@
+Description des heuristiques : 
+
+Heuristique du nombre de pions : 
+
+Cette heuristique sert à évaluer la position en fonction du nombre de pions présents sur le plateau pour chaque joueur. En effet, un joueur ayant plus de pions que son adversaire a généralement un avantage. Cette heuristique est insuffisante à elle seule, car le nombre de pions ne garantit pas une position stable ou gagnante.
+
+Implementation : 
+score = 0
+for i in range(8):
+    for j in range(8):
+        if board[i][j] == player:
+            score += 1
+        elif board[i][j] == opponent:
+            score -= 1
+
+Heuristique de la valeur positionnelle : 
+
+Certaines cases du plateau sont plus stratégiques que d’autres. Cette heuristique attribue des poids aux positions en fonction de leur importance. Cette heuristique améliore significativement les performances de l'IA en sorte que de prendre les bonnes positions fortes et en évitant les erreurs stratégiques.
+
+Implémentaion : 
+position_score = 0
+for i in range(8):
+    for j in range(8):
+        if board[i][j] == player:
+            position_score += POSITION_WEIGHTS[i][j]
+        elif board[i][j] == opponent:
+            position_score -= POSITION_WEIGHTS[i][j]
+
+
+Heuristique de le mobilité : 
+
+La mobilité mesure la différence entre le nombre de coups possibles pour le joueur et son adversaire. Un joueur ayant plus d'options a plus de contrôle sur le jeu.
+
+L'implementation de la mobilité : 
+valid_moves_player = len(temp_game.get_valid_moves(player))
+valid_moves_opponent = len(temp_game.get_valid_moves(opponent))
+mobility = valid_moves_player - valid_moves_opponent
+
+Les trois heuristiques sont combinées dans une fonction d'évaluation pondérée :
+- return score + position_score * 0.5 + mobility * 0.2
+
+Grâce à cette combinaison, l’IA peut prendre des bonnes décisions et de bien jouer contre un joueur humain afin de gagner.
+
+
+Analyse des algorithmes : 
+
+On sait très bien grace aux notes du cours, que l'algorithme Minimax fait en sorte d'explorer les états futurs du jeu jusqu'à une profondeur donnée. Chaque état est évalué selon la fonction heuristique, et l'IA sélectionne le coup qui minimise les pertes et maximise les gains.
+
+Ensuite pour ce qui est de Alpha-beta, on sait que c'est une version améliorer de Minimax. En effet, cela coupe les branches non pertinentes ce qui réduit le nombre des nœuds évalués
+
+Finalement pour ce qui est de Monte Carlo, on sait que cela fait des simulations aléatoires des parties pour estimer la valuer d'un coup. 
+
+D'après tout cela, quand nous avons joué au jeu contre l'IA à travers les trois algorithmes, nous avons remarqué différentes situation. Tout d'abord, pour ce qui est du Minimax, on remarque que le jeu marche bien, que ça ne prend pas beaucoup de temps à le faire. Ainsi que pour l'IA, il choisi bien les positions en fonction du Minimax et il ne prend pas beaucoup de temps a choisir ça position quand il réfléchit. Cela n'arrive que au début du jeu, au fur et à mesure quand il joue au jeu, il prend un peu plus de temps à choisir la position qu'il doit prendre.
+
+Ensuite pour ce qui est de la fonction Alpha-beta, on a remarqué que l'IA est plus rapide avec ces decisions car on sait très bien que Alpha-beta enlève les branches inutiles. Donc moins de branches, mois de coups valides donc moins de choix, alors ça va être très rapide de choisir lequel est le meilleure choix parmi les coups. Cela est la même chose pour nous. Donc le jeu si on veut qui tourne plus rapidement c'est mieux de jouer avec Alpha-beta. 
+
+Puis que finalement, pour ce qui est de Monte Carlo, nous avons remarqué que lorsqu'on joue au jeux avec 10 000 simulations, ça prend beaucoup de temps à l'IA de choisir sont prochains coups. Donc on a essayé de voir avec un nombre différents de simulations. Nous avons testé avec 500, l'IA fait bien sont choix mais ça prend aussi beaucoup de temps à le faire. Mais moins que 10 000. Mais on a remarque que le Monte Carlo, fait moins d'erreurs heuristiques que minimax et alpha-beta. 
+
+On peut conclure, que si on veut jouer a ce jeu l'algorithme le plus raisonnable est Alpha-beta, car elle plus rapide et efficace au deux autres algorithmes.
