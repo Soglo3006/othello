@@ -9,7 +9,9 @@ class OthelloGame:
         self.reset_board()
 
     def reset_board(self):
-        self.board = [[' ' for _ in range(8)] for _ in range(8)]
+        self.board = []
+        for _ in range(8):
+            self.board.append([' ']*8)
         self.board[3][3] = self.board[4][4] = 'O'
         self.board[3][4] = self.board[4][3] = 'X'
         self.current_player = 'X'
@@ -18,9 +20,12 @@ class OthelloGame:
 
     def print_board(self):
         print("  0 1 2 3 4 5 6 7")
-        for i, row in enumerate(self.board):
+        i = 0
+        for row in self.board:
             print(i, end=" ")
             print(" ".join(row).replace(' ', '.'))
+            i += 1
+
 
     def is_valid_move(self, player, pos):
         if self.board[pos[0]][pos[1]] != ' ':
@@ -63,7 +68,7 @@ class OthelloGame:
                 ny += dy
                 
             if 0 <= nx < 8 and 0 <= ny < 8 and self.board[nx][ny] == player:
-                flipped.extend(temp_flip)
+                flipped += temp_flip
                 
         if flipped:
             self.board[x][y] = player
@@ -73,12 +78,21 @@ class OthelloGame:
         return False
 
     def is_terminal(self):
-        return not self.get_valid_moves('X') and not self.get_valid_moves('O')
+        if not self.get_valid_moves('X') and not self.get_valid_moves('O'):
+            return True
+        return False
+
 
     def get_score(self):
-        x = sum(row.count('X') for row in self.board)
-        o = sum(row.count('O') for row in self.board)
+        x, o = 0, 0
+        for row in self.board:
+            for cell in row:
+                if cell == 'X':
+                    x += 1
+                elif cell == 'O':
+                    o += 1
         return x, o
+
 
 # ================== ALGORITHMES ================== 
 
@@ -94,131 +108,124 @@ POSITION_WEIGHTS = [
 ]
 
 def evaluate_board(board, player):
-    # Création d'une instance temporaire pour calculer les coups valides
+    opponent = 'O' if player == 'X' else 'X'
+    score = 0
+    position_score = 0
     temp_game = OthelloGame()
     temp_game.board = deepcopy(board)
     
-    opponent = 'O' if player == 'X' else 'X'
-    
-    # Critère 1: Différence de pièces
-    score = sum(row.count(player) for row in board) - sum(row.count(opponent) for row in board)
-    
-    # Critère 2: Valeur des positions
-    position_score = 0
+    # Calculer le score des pièces et le score de position en une seule boucle
     for i in range(8):
         for j in range(8):
             if board[i][j] == player:
+                score += 1
                 position_score += POSITION_WEIGHTS[i][j]
             elif board[i][j] == opponent:
+                score -= 1
                 position_score -= POSITION_WEIGHTS[i][j]
     
-    # Critère 3: Mobilité
-    mobility = len(temp_game.get_valid_moves(player)) - len(temp_game.get_valid_moves(opponent))
+    # Calculer la mobilité
+    valid_moves_player = len(temp_game.get_valid_moves(player))
+    valid_moves_opponent = len(temp_game.get_valid_moves(opponent))
+    mobility = valid_moves_player - valid_moves_opponent
     
     return score + position_score * 0.5 + mobility * 0.2
+
 
 def minimax_move(board, player, depth=6):
     game = OthelloGame()
     game.board = deepcopy(board)
-    
-    def max_value(depth, alpha, beta):
+
+    def minimax(depth, alpha, beta, is_maximizing, current_player):
         if depth == 0 or game.is_terminal():
             return evaluate_board(game.board, player)
-            
-        max_eval = -math.inf
-        for move in game.get_valid_moves(player):
+
+        best_value = -math.inf if is_maximizing else math.inf
+        valid_moves = game.get_valid_moves(current_player)
+
+        for move in valid_moves:
             child = OthelloGame()
             child.board = deepcopy(game.board)
-            child.make_move(player, move)
-            eval = min_value(depth-1, alpha, beta)
-            max_eval = max(max_eval, eval)
-            alpha = max(alpha, eval)
+            child.make_move(current_player, move)
+            value = minimax(depth - 1, alpha, beta, not is_maximizing, 'O' if current_player == 'X' else 'X')
+
+            if is_maximizing:
+                best_value = max(best_value, value)
+                alpha = max(alpha, value)
+            else:
+                best_value = min(best_value, value)
+                beta = min(beta, value)
+
             if beta <= alpha:
                 break
-        return max_eval
-    
-    def min_value(depth, alpha, beta):
-        opponent = 'O' if player == 'X' else 'X'
-        if depth == 0 or game.is_terminal():
-            return evaluate_board(game.board, player)
-            
-        min_eval = math.inf
-        for move in game.get_valid_moves(opponent):
-            child = OthelloGame()
-            child.board = deepcopy(game.board)
-            child.make_move(opponent, move)
-            eval = max_value(depth-1, alpha, beta)
-            min_eval = min(min_eval, eval)
-            beta = min(beta, eval)
-            if beta <= alpha:
-                break
-        return min_eval
-    
+
+        return best_value
+
     best_move = None
     best_value = -math.inf
     for move in game.get_valid_moves(player):
         child = OthelloGame()
         child.board = deepcopy(game.board)
         child.make_move(player, move)
-        value = min_value(depth-1, -math.inf, math.inf)
+        value = minimax(depth - 1, -math.inf, math.inf, False, 'O' if player == 'X' else 'X')
+
         if value > best_value or (value == best_value and random.random() < 0.3):
             best_value = value
             best_move = move
+
     return best_move
 
 
 def alphabeta_move(board, player, depth=7):
     game = OthelloGame()
     game.board = deepcopy(board)
-    
-    def max_value(depth, alpha, beta):
+
+    def alphabeta(depth, alpha, beta, is_maximizing, current_player):
         if depth == 0 or game.is_terminal():
             return evaluate_board(game.board, player)
-        
-        max_eval = -math.inf
-        for move in game.get_valid_moves(player):
+
+        best_value = -math.inf if is_maximizing else math.inf
+        valid_moves = game.get_valid_moves(current_player)
+
+        for move in valid_moves:
             child = OthelloGame()
             child.board = deepcopy(game.board)
-            child.make_move(player, move)
-            eval = min_value(depth-1, alpha, beta)
-            max_eval = max(max_eval, eval)
-            alpha = max(alpha, eval)
+            child.make_move(current_player, move)
+
+            value = alphabeta(depth - 1, alpha, beta, not is_maximizing, 'O' if current_player == 'X' else 'X')
+
+            if is_maximizing:
+                best_value = max(best_value, value)
+                alpha = max(alpha, value)
+            else:
+                best_value = min(best_value, value)
+                beta = min(beta, value)
+
             if beta <= alpha:
                 break
-        return max_eval
-    
-    def min_value(depth, alpha, beta):
-        opponent = 'O' if player == 'X' else 'X'
-        if depth == 0 or game.is_terminal():
-            return evaluate_board(game.board, player)
-        
-        min_eval = math.inf
-        for move in game.get_valid_moves(opponent):
-            child = OthelloGame()
-            child.board = deepcopy(game.board)
-            child.make_move(opponent, move)
-            eval = max_value(depth-1, alpha, beta)
-            min_eval = min(min_eval, eval)
-            beta = min(beta, eval)
-            if beta <= alpha:
-                break
-        return min_eval
-    
+
+        return best_value
+
     best_move = None
     best_value = -math.inf
+
     for move in game.get_valid_moves(player):
         child = OthelloGame()
         child.board = deepcopy(game.board)
         child.make_move(player, move)
-        value = min_value(depth-1, -math.inf, math.inf)
+        value = alphabeta(depth - 1, -math.inf, math.inf, False, 'O' if player == 'X' else 'X')
+
         if value > best_value:
             best_value = value
             best_move = move
-    
+
     return best_move
 
-def monte_carlo_move(board, player, simulations=10000):
-    valid_moves = [(i, j) for i in range(8) for j in range(8) if board[i][j] == ' ']
+
+def monte_carlo_move(board, player, simulations=500):
+    game = OthelloGame()
+    game.board = deepcopy(board)
+    valid_moves = game.get_valid_moves(player)
     if not valid_moves:
         return None
     
@@ -229,13 +236,14 @@ def monte_carlo_move(board, player, simulations=10000):
             sim_game = OthelloGame()
             sim_game.board = deepcopy(board)
             sim_game.make_move(player, move)
-            current_player = 'O' if player == 'X' else 'X'
+            current_player = {'X': 'O', 'O': 'X'}.get(player)
             
             while not sim_game.is_terminal():
                 random_moves = sim_game.get_valid_moves(current_player)
                 if random_moves:
                     sim_game.make_move(current_player, random.choice(random_moves))
-                current_player = 'O' if current_player == 'X' else 'X'
+                current_player = 'X' if not current_player == 'X' else 'O'
+
             
             x_score, o_score = sim_game.get_score()
             if (player == 'X' and x_score > o_score) or (player == 'O' and o_score > x_score):
@@ -286,8 +294,7 @@ def human_vs_ai():
     x, o = game.get_score()
     print("\n=== Résultat final ===")
     game.print_board()
-    print(f"\nScore - X: {x} | O: {o}")
+    print("\nScore - X: {x} | O: {o}")
     print("Gagnant: ", 'X' if x > o else 'O' if o > x else 'Égalité')
 
-if __name__ == "__main__":
-    human_vs_ai()
+human_vs_ai()
