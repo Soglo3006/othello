@@ -2,8 +2,6 @@ import math
 import random
 from copy import deepcopy
 
-# ================== MOTEUR DU JEU ==================
-
 class OthelloGame:
     def __init__(self):
         self.reset_board()
@@ -16,7 +14,7 @@ class OthelloGame:
         self.board[3][4] = self.board[4][3] = 'X'
         self.current_player = 'X'
         self.directions = [(-1,-1), (-1,0), (-1,1), (0,-1), 
-                         (0,1), (1,-1), (1,0), (1,1)]
+                           (0,1), (1,-1), (1,0), (1,1)]
 
     def print_board(self):
         print("  0 1 2 3 4 5 6 7")
@@ -93,9 +91,6 @@ class OthelloGame:
                     o += 1
         return x, o
 
-
-# ================== ALGORITHMES ================== 
-
 POSITION_WEIGHTS = [
     [500, -150, 30, 10, 10, 30, -150, 500],
     [-150, -250, 0, 0, 0, 0, -250, -150],
@@ -107,6 +102,8 @@ POSITION_WEIGHTS = [
     [500, -150, 30, 10, 10, 30, -150, 500]
 ]
 
+#Évalue l'état du plateau en fonction du nombre de pions du joueur 
+# de la position des pions et de la mobilité des coups disponibles.
 def evaluate_board(board, player):
     opponent = 'O' if player == 'X' else 'X'
     score = 0
@@ -131,7 +128,8 @@ def evaluate_board(board, player):
     
     return score + position_score * 0.5 + mobility * 0.2
 
-
+# Implémente l'algorithme Minimax pour choisir 
+# le meilleur coup en évaluant les états futurs du jeu.
 def minimax_move(board, player, depth=6):
     game = OthelloGame()
     game.board = deepcopy(board)
@@ -176,6 +174,8 @@ def minimax_move(board, player, depth=6):
     return best_move
 
 
+# Implémente l'algorithme Alpha-Bêta 
+# pour réduire l'espace de recherche de Minimax.
 def alphabeta_move(board, player, depth=7):
     game = OthelloGame()
     game.board = deepcopy(board)
@@ -222,6 +222,8 @@ def alphabeta_move(board, player, depth=7):
     return best_move
 
 
+# Utilise la simulation Monte-Carlo pour 
+# choisir le meilleur coup en simulant plusieurs parties.
 def monte_carlo_move(board, player, simulations=500):
     game = OthelloGame()
     game.board = deepcopy(board)
@@ -252,7 +254,7 @@ def monte_carlo_move(board, player, simulations=500):
     best_move = max(win_counts, key=win_counts.get)
     return best_move
 
-# ================== INTERFACE ================== 
+
 
 def human_vs_ai():
     game = OthelloGame()
