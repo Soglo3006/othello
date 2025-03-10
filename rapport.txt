@@ -50,10 +50,16 @@ Ensuite pour ce qui est de Alpha-beta, on sait que c'est une version améliorer 
 
 Finalement pour ce qui est de Monte Carlo, on sait que cela fait des simulations aléatoires des parties pour estimer la valuer d'un coup. 
 
-D'après tout cela, quand nous avons joué au jeu contre l'IA à travers les trois algorithmes, nous avons remarqué différentes situation. Tout d'abord, pour ce qui est du Minimax, on remarque que le jeu marche bien, que ça ne prend pas beaucoup de temps à le faire. Ainsi que pour l'IA, il choisi bien les positions en fonction du Minimax et il ne prend pas beaucoup de temps a choisir ça position quand il réfléchit. Cela n'arrive que au début du jeu, au fur et à mesure quand il joue au jeu, il prend un peu plus de temps à choisir la position qu'il doit prendre.
+Remarque sur les algorithmes : 
 
-Ensuite pour ce qui est de la fonction Alpha-beta, on a remarqué que l'IA est plus rapide avec ces decisions car on sait très bien que Alpha-beta enlève les branches inutiles. Donc moins de branches, mois de coups valides donc moins de choix, alors ça va être très rapide de choisir lequel est le meilleure choix parmi les coups. Cela est la même chose pour nous. Donc le jeu si on veut qui tourne plus rapidement c'est mieux de jouer avec Alpha-beta. 
+D'après tout cela, quand nous avons joué au jeu contre l'IA à travers les trois algorithmes, nous avons remarqué différentes situation.
+Minimax :
+- On remarque que le jeu marche bien, que ça ne prend pas beaucoup de temps à le faire. Ainsi que pour l'IA, choisi bien les positions en fonction du Minimax et ne prend pas beaucoup de temps a choisir ça position quand il réfléchit. Cela n'arrive que au début du jeu. Toutefois plus la partie avance, plus l'IA prend un peu plus de temps à choisir la position.
 
-Puis que finalement, pour ce qui est de Monte Carlo, nous avons remarqué que lorsqu'on joue au jeux avec 10 000 simulations, ça prend beaucoup de temps à l'IA de choisir sont prochains coups. Donc on a essayé de voir avec un nombre différents de simulations. Nous avons testé avec 500, l'IA fait bien sont choix mais ça prend aussi beaucoup de temps à le faire. Mais moins que 10 000. Mais on a remarque que le Monte Carlo, fait moins d'erreurs heuristiques que minimax et alpha-beta. 
+Alpha-Beat:
+- On a remarqué que l'IA est plus rapide avec ces decisions car on sait très bien que Alpha-beta enlève les branches inutiles. Donc moins de branches, mois de coups valides donc moins de choix, alors ça va être très rapide de choisir lequel est le meilleure choix parmi les coups. Cela est la même chose pour nous. Donc le jeu si on veut qui tourne plus rapidement c'est mieux de jouer avec Alpha-beta. 
 
-On peut conclure, que si on veut jouer a ce jeu l'algorithme le plus raisonnable est Alpha-beta, car elle plus rapide et efficace au deux autres algorithmes.
+Monte Carlo:
+- Nous avons remarqué que lorsqu'on joue au jeux avec 10 000 simulations, ça prend beaucoup de temps à l'IA de choisir sont prochains coups. Donc on a essayé de voir avec un nombre différents de simulations. Nous avons testé avec 500, l'IA fait bien sont choix mais ça prend aussi beaucoup de temps à le faire. Mais moins que 10 000. Mais on a remarque que le Monte Carlo, fait moins d'erreurs heuristiques que minimax et alpha-beta. 
+
+On peut conclure que, pour jouer à ce jeu, l'algorithme le plus raisonnable est Alpha-Beta, car il est plus rapide et plus efficace que les deux autres algorithmes.  

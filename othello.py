@@ -1,3 +1,5 @@
+# Alexandre Booh Louha - matricule:20220478
+# Rafi Dahoui - matricule: 20228733
 import math
 import random
 from copy import deepcopy
